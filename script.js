@@ -1,5 +1,5 @@
 (() => {
-    const ticTacToeBoard = ((playerOneSymbol, playerTwoSymbol) => {
+    const ticTacToeBoardModel = ((playerOneSymbol, playerTwoSymbol) => {
         const Symbols = {
             PLAYER_1: playerOneSymbol,
             PLAYER_2: playerTwoSymbol,
@@ -92,9 +92,76 @@
         };
 
         const clearBoard = () => {
-            board.map((row) => [Symbols.EMPTY, Symbols.EMPTY, Symbols.EMPTY]);
+            board.forEach((row, i) => row.forEach((col, j) => board[i][j] = Symbols.EMPTY));
         };
 
-        return { playTurn, checkGameState, clearBoard };
+        const getCurrentTurn = () => {
+            return currentTurn;
+        }
+
+        const getCellAt = (row, column) => {
+            return board.at(row).at(column);
+        }
+
+        return { playTurn, getCurrentTurn, checkGameState, clearBoard, getCellAt, Symbols };
     })('X', 'O');
+
+    const ticTacToeBoardView = ((document, model) => {
+        const boardElement = document.querySelector(".game-view");
+        const boardCellElements = boardElement.querySelectorAll(".game-view__board button");
+        const messageElement = boardElement.querySelector(".game-view__state-message");
+        const playAgainButtonElement = boardElement.querySelector(".game-view__play-again");
+
+        const render = () => {
+            const { isGameOver, winner } = model.checkGameState();
+
+            const renderMessage = (isGameOver, winner) => {
+                if (!isGameOver) {
+                    messageElement.textContent = `${model.getCurrentTurn()}'s turn`;
+                } else if (winner === model.Symbols.EMPTY) {
+                    messageElement.textContent = `Game Tie`;
+                } else {
+                    messageElement.textContent = `${winner} wins!`;
+                }
+            };
+    
+            const renderBoardButtons = () => {
+                boardCellElements.forEach((cellElement, index) => {
+                    const row = Math.floor(index / 3);
+                    const column = index % 3;
+                    cellElement.textContent = model.getCellAt(row, column);
+                });
+            };
+
+            const renderPlayAgainButton = (isGameOver) => {
+                if (!isGameOver) {
+                    playAgainButtonElement.classList.add("game-view__play-again_hidden");
+                } else {
+                    playAgainButtonElement.classList.remove("game-view__play-again_hidden");
+                }
+            };
+
+            renderMessage(isGameOver, winner);
+            renderBoardButtons();
+            renderPlayAgainButton(isGameOver);
+        };
+
+        boardCellElements.forEach((cellElement, index) => {
+            const row = Math.floor(index / 3);
+            const column = index % 3;
+            cellElement.addEventListener("click", (event) => {
+                model.playTurn(row, column);
+                render();
+            });
+        });
+
+        playAgainButtonElement.addEventListener("click", (event) => {
+            model.clearBoard();
+            render();
+        });
+
+        render();
+
+        return {};
+    })(document, ticTacToeBoardModel);
 })();

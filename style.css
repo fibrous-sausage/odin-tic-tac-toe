@@ -1,0 +1,24 @@
+.game-view {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.game-view__play-again {
+    align-self: center;
+}
+
+.game-view__play-again_hidden {
+    display: none;
+}
+
+.game-view__board {
+    display: inline-grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-collapse: collapse;
+}
+
+.game-view__board > button {
+    width: 64px;
+    height: 64px;
+}
